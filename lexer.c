@@ -242,6 +242,15 @@ static void lex_new_expression()
   }
 }
 
+static void lex_finish_expression()
+{
+  lex_process->current_expression_count--;
+  if (lex_process->current_expression_count < 0)
+  {
+    compiler_error(lex_process->compiler, "You closed an expression that you never opened\n");
+  }
+}
+
 bool lex_is_in_expression()
 {
   return lex_process->current_expression_count > 0;
@@ -268,6 +277,19 @@ static struct token* token_make_operator_or_string()
   return token;
 }
 
+static struct token* token_make_symbol()
+{
+  char c = nextc();
+  if (c == ')')
+  {
+    lex_finish_expression();
+  }
+
+  struct token* token = token_create(&(struct token){.type=TOKEN_TYPE_SYMBOL, .cval=c});
+
+  return token;
+}
+
 struct token* read_next_token()
 {
   struct token* token = NULL;
@@ -280,6 +302,10 @@ struct token* read_next_token()
 
     OPERATOR_CASE_EXCLUDING_DIVISION:
       token = token_make_operator_or_string();
+    break;
+
+    SYMBOL_CASE:
+      token = token_make_symbol();
     break;
 
     case '"':
