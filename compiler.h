@@ -74,6 +74,14 @@ enum
   TOKEN_TYPE_NEWLINE
 };
 
+enum
+{
+  NUMBER_TYPE_NORMAL,
+  NUMBER_TYPE_LONG,
+  NUMBER_TYPE_FLOAT,
+  NUMBER_TYPE_DOUBLE
+};
+
 struct token
 {
   int type;
@@ -89,6 +97,11 @@ struct token
     unsigned long long llnum;
     void* any;
   };
+
+  struct token_number
+  {
+    int type;
+  } num;
   
   // True if there is a whitespace between the token and the next token
   // i.e * a for operator token * would mean whitespace would be set for token "a"
