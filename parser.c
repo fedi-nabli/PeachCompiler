@@ -476,10 +476,40 @@ void parse_datatype(struct datatype* dtype)
   parse_datatype_modifiers(dtype);
 }
 
+bool parser_is_int_valid_after_datatype(struct datatype* dtype)
+{
+  return dtype->type == DATA_TYPE_LONG || dtype->type == DATA_TYPE_FLOAT || dtype->type == DATA_TYPE_DOUBLE;
+}
+
+/**
+ * long int abc;
+ *
+ */
+
+void parser_ignore_int(struct datatype* dtype)
+{
+  if (!token_is_keyword(token_peek_next(), "int"))
+  {
+    // No integer to ignore
+    return;
+  }
+
+  if (!parser_is_int_valid_after_datatype(dtype))
+  {
+    compiler_error(current_process, "You provided a secondary \"int\" type however it's not supported with this current abbreviation\n");
+  }
+
+  // Ignore the "int" token
+  token_next();
+}
+
 void parse_variable_function_or_struct_union(struct history* history)
 {
   struct datatype dtype;
   parse_datatype(&dtype);
+
+  // Ignore integer abbreviations if necessary i.e "long int" becomes just "long"
+  parser_ignore_int(&dtype);
 }
 
 void parse_keyword(struct history* history)
