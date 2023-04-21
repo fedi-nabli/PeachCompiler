@@ -64,6 +64,11 @@ void make_exp_node(struct node* left_node, struct node* right_node, const char* 
   node_create(&(struct node){.type=NODE_TYPE_EXPRESSION, .exp.left=left_node, .exp.right=right_node, .exp.op=op});
 }
 
+void make_bracket_node(struct node* node)
+{
+  node_create(&(struct node){.type=NODE_TYPE_BRACKET, .bracket.inner=node});
+}
+
 struct node* node_create(struct node* _node)
 {
   struct node* node = malloc(sizeof(struct node));
