@@ -355,6 +355,23 @@ struct node
        */
       struct node* var;
     } _struct;
+
+    struct body
+    {
+      /**
+       * struct node* vector of statements
+       */
+      struct vector* statements;
+
+      // The size of combined variables inside this body.
+      size_t size;
+
+      // True if the size had to be increased due to padding in the body.
+      bool padded;
+
+      // A pointer to the largest variable node in th statment vactor.
+      struct node* largest_var_node;
+    } body;
   };
 
   union
@@ -451,6 +468,7 @@ bool datatype_is_struct_or_union_for_name(const char* name);
 struct node* node_create(struct node* _node);
 void make_exp_node(struct node* left_node, struct node* right_node, const char* op);
 void make_bracket_node(struct node* node);
+void make_body_node(struct vector* body_vec, size_t size, bool padded, struct node* largest_var_node);
 struct node* node_pop();
 struct node* node_peek();
 struct node* node_peek_or_null();
