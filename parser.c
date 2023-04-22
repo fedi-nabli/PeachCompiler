@@ -596,7 +596,7 @@ void parse_variable(struct datatype* dtype, struct token* name_token, struct his
     dtype->flags |= DATATYPE_FLAG_IS_ARRAY;
   }
 
-  // int c  = 50;
+  // int c = 50;
   if (token_next_is_operator("="))
   {
     // Ignore the = operator
