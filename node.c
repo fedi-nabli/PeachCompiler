@@ -5,7 +5,7 @@
 struct vector* node_vector = NULL;
 struct vector* node_vector_root = NULL;
 
-struct node* parser_current_node = NULL;
+struct node* parser_current_body = NULL;
 
 void node_set_vector(struct vector* vec, struct vector* root_vec)
 {
