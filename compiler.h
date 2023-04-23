@@ -488,6 +488,10 @@ int array_total_indexes(struct datatype* dtype);
 
 // Datatype functions
 bool datatype_is_struct_or_union(struct datatype* dtype);
+size_t datatype_size_for_array_access(struct datatype* dtype);
+size_t datatype_element_size(struct datatype* dtype);
+size_t datatype_size_no_ptr(struct datatype* dtype);
+size_t datatype_size(struct datatype* dtype);
 
 // Scope functions
 struct scope* scope_new(struct compile_process* process, int flags);
