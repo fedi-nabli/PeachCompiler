@@ -508,6 +508,22 @@ void scope_push(struct compile_process* process, void* ptr, size_t elem_size);
 void scope_finish(struct compile_process* process);
 struct scope* scope_current(struct compile_process* process);
 
+/**
+ * @brief Gets the variable size from the given variable node
+ * 
+ * @param var_node
+ * @return size_t
+ */
+size_t variable_size(struct node* var_node);
+/**
+ * @brief  Sums the variable size of all variable nodes inside the variable list node
+ * Returns the result
+ * 
+ * @param var_list_node
+ * @return size_t The sum of all variable node sizes in the list.
+ */
+size_t variable_size_for_array(struct node* var_list_node)
+
 #define TOTAL_OPERATOR_GROUP 14
 #define MAX_OPERATORS_IN_GROUP 12
 
