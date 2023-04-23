@@ -522,7 +522,7 @@ size_t variable_size(struct node* var_node);
  * @param var_list_node
  * @return size_t The sum of all variable node sizes in the list.
  */
-size_t variable_size_for_array(struct node* var_list_node)
+size_t variable_size_for_array(struct node* var_list_node);
 
 #define TOTAL_OPERATOR_GROUP 14
 #define MAX_OPERATORS_IN_GROUP 12
