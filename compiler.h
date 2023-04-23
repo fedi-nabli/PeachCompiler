@@ -477,6 +477,7 @@ void node_push(struct node* node);
 void node_set_vector(struct vector* vec, struct vector* root_vec);
 bool node_is_expressionable(struct node* node);
 struct node* node_peek_expressionable_or_null();
+bool node_is_struct_or_union_variable(struct node* node);
 
 // Array functions
 struct array_brackets* array_brackets_new();
@@ -509,6 +510,7 @@ void scope_push(struct compile_process* process, void* ptr, size_t elem_size);
 void scope_finish(struct compile_process* process);
 struct scope* scope_current(struct compile_process* process);
 
+struct node* variable_struct_or_union_body_node(struct node* node);
 /**
  * @brief Gets the variable size from the given variable node
  * 
