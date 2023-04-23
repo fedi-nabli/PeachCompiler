@@ -1,3 +1,5 @@
+![example workflow](https://github.com/fedi-nabli/PeachCompiler/actions/workflows/c-cpp.yml/badge.svg)
+
 # PeachCompiler
 
 Peach Compiler is a simple C project made for compiling C projects and file into x86 32-bit machine code.
