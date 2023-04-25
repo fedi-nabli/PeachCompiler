@@ -324,6 +324,8 @@ struct node
     {
       struct datatype type;
       int padding;
+      // Aligned offset
+      int aoffset;
       const char* name;
       struct node* val;
     } var;
@@ -478,6 +480,8 @@ void node_set_vector(struct vector* vec, struct vector* root_vec);
 bool node_is_expressionable(struct node* node);
 struct node* node_peek_expressionable_or_null();
 bool node_is_struct_or_union_variable(struct node* node);
+struct node* variable_node(struct node* node);
+bool variable_node_is_primitive(struct node* node);
 
 // Array functions
 struct array_brackets* array_brackets_new();
@@ -494,6 +498,7 @@ size_t datatype_size_for_array_access(struct datatype* dtype);
 size_t datatype_element_size(struct datatype* dtype);
 size_t datatype_size_no_ptr(struct datatype* dtype);
 size_t datatype_size(struct datatype* dtype);
+bool datatype_is_primitive(struct datatype* dtype);
 
 // Scope functions
 struct scope* scope_new(struct compile_process* process, int flags);
