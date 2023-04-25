@@ -482,6 +482,7 @@ struct node* node_peek_expressionable_or_null();
 bool node_is_struct_or_union_variable(struct node* node);
 struct node* variable_node(struct node* node);
 bool variable_node_is_primitive(struct node* node);
+struct node* variable_node_or_list(struct node* node);
 
 // Array functions
 struct array_brackets* array_brackets_new();

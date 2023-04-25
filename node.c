@@ -123,3 +123,13 @@ bool variable_node_is_primitive(struct node* node)
   assert(node->type == NODE_TYPE_VARIABLE);
   return datatype_is_primitive(&node->var.type);
 }
+
+struct node* variable_node_or_list(struct node* node)
+{
+  if (node->type == NODE_TYPE_VARIABLE_LIST)
+  {
+    return node;
+  }
+
+  return variable_node(node);
+}

@@ -862,6 +862,58 @@ void parse_body_single_statement(size_t* variable_size, struct vector* body_vec,
   node_push(body_node);
 }
 
+void parse_body_multiple_statement(size_t* variable_size, struct vector* body_vec, struct history* history)
+{
+  // Create a blank body node
+  make_body_node(NULL, 0, false, NULL);
+  struct node* body_node = node_pop();
+  body_node->binded.owner = parser_current_body;
+  parser_current_body = body_node;
+
+  struct node* stmt_node = NULL;
+  struct node* largest_possible_var_node = NULL;
+  struct node* largest_align_eligible_var_node = NULL;
+
+  // We have a body i.e { } therefore we must pop off the left curly brace
+  expect_sym('{');
+
+  while (!token_next_is_symbol('}'))
+  {
+    parse_statement(history_down(history, history->flags));
+    stmt_node = node_pop();
+    if (stmt_node->type == NODE_TYPE_VARIABLE)
+    {
+      if (!largest_possible_var_node || (largest_possible_var_node->var.type.size <= stmt_node->var.type.size))
+      {
+        largest_possible_var_node = stmt_node;
+      }
+
+      if (variable_node_is_primitive(stmt_node))
+      {
+        if (!largest_align_eligible_var_node || (largest_align_eligible_var_node->var.type.size <= stmt_node->var.type.size))
+        {
+          largest_align_eligible_var_node = stmt_node;
+        }
+      }
+    }
+
+    // Push the statement node to the body vector
+    vector_push(body_vec, &stmt_node);
+
+    // We may have to change the variable size if this statement is a variable
+    parser_append_size_for_node(history, variable_node, variable_node_or_list(stmt_node));
+  }
+
+  // Pop off the right curly brace
+  expect_sym('}');
+
+  parser_finilize_body(history, body_node, body_vec, variable_size, largest_align_eligible_var_node, largest_possible_var_node);
+  parser_current_body = body_node->binded.owner;
+
+  // Let's now push the body node back to the stack :)
+  node_push(body_node);
+}
+
 /**
  * @brief 
  * 
@@ -885,7 +937,11 @@ void parse_body(size_t* variable_size, struct history* history)
     return;
   }
 
+  // We have some statements between curly braces { int a; int b; int c; }
+  parse_body_multiple_statement(variable_size, body_vec, history);
   parser_scope_finish();
+
+  #warning "Don't forget to adjust the function stack size"
 }
 
 void parse_struct_no_new_scope(struct datatype* dtype)
