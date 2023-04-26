@@ -3,10 +3,10 @@
 #include <assert.h>
 
 static struct compile_process* current_process;
-static struct token* parser_last_token;
+static struct token*  parser_last_token;
 
 extern struct node* parser_current_body;
-extern struct expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_GROUP];
+extern struct expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_GROUPS];
 
 enum
 {
@@ -92,7 +92,7 @@ void parser_scope_push(struct parser_scope_entity* entity, size_t size)
   scope_push(current_process, entity, size);
 }
 
-static void parser_ignore_nl_or_comment(struct token* token)
+static void parser_ignore_nl_or_comment(struct token*  token)
 {
   while (token && token_is_nl_or_comment_or_newline_seperator(token))
   {
@@ -102,55 +102,55 @@ static void parser_ignore_nl_or_comment(struct token* token)
   }
 }
 
-static struct token* token_next()
+static struct token*  token_next()
 {
-  struct token* next_token = vector_peek_no_increment(current_process->token_vec);
+  struct token*  next_token = vector_peek_no_increment(current_process->token_vec);
   parser_ignore_nl_or_comment(next_token);
   current_process->pos = next_token->pos;
   parser_last_token = next_token;
   return vector_peek(current_process->token_vec);
 }
 
-static struct token* token_peek_next()
+static struct token*  token_peek_next()
 {
-  struct token* next_token = vector_peek_no_increment(current_process->token_vec);
+  struct token*  next_token = vector_peek_no_increment(current_process->token_vec);
   parser_ignore_nl_or_comment(next_token);
   return vector_peek_no_increment(current_process->token_vec);
 }
 
 static bool token_next_is_operator(const char* op)
 {
-  struct token* token = token_peek_next();
+  struct token*  token = token_peek_next();
   return token_is_operator(token, op);
 }
 
 static bool token_next_is_symbol(char c)
 {
-  struct token* token = token_peek_next();
+  struct token*  token = token_peek_next();
   return token_is_symbol(token, c);
 }
 
 static void expect_sym(char c)
 {
-  struct token* next_token = token_next();
+  struct token*  next_token = token_next();
   if (!next_token || next_token->type != TOKEN_TYPE_SYMBOL || next_token->cval != c)
   {
-    compiler_error(current_process, "Expecting symbol %c however something else was provided", c);
+    compiler_error(current_process, "Expecting symbol %c however something else was provided\n", c);
   }
 }
 
 static void expect_op(const char* op)
 {
-  struct token* next_token = token_next();
+  struct token*  next_token = token_next();
   if (!next_token || next_token->type != TOKEN_TYPE_OPERATOR || !S_EQ(next_token->sval, op))
   {
-    compiler_error(current_process, "Expecting the operator %s but something else was provided_n", next_token->sval);
+    compiler_error(current_process, "Expecting the operator %s but something else was provided\n", next_token->sval);
   }
 }
 
 void parse_single_token_to_node()
 {
-  struct token* token = token_next();
+  struct token*  token = token_next();
   struct node* node = NULL;
 
   switch(token->type)
@@ -180,7 +180,7 @@ void parse_expressionable_for_op(struct history* history, const char* op)
 static int parser_get_precedence_for_operator(const char* op, struct expressionable_op_precedence_group** group_out)
 {
   *group_out = NULL;
-  for (int i = 0; i < TOTAL_OPERATOR_GROUP; i++)
+  for (int i = 0; i < TOTAL_OPERATOR_GROUPS; i++)
   {
     for (int b = 0; op_precedence[i].operators[b]; b++)
     {
@@ -250,12 +250,11 @@ void parser_reorder_expression(struct node** node_out)
     return;
   }
 
-  // 50*30+20
   // 50*E(30+20)
   // 50*EXPRESSION
   // EXPRESSION(50*EXPRESSION(30+20))
   // (50*30)+20
-  if (node->exp.left != NODE_TYPE_EXPRESSION &&
+  if (node->exp.left->type != NODE_TYPE_EXPRESSION &&
       node->exp.right && node->exp.right->type == NODE_TYPE_EXPRESSION)
   {
     const char* right_op = node->exp.right->exp.op;
@@ -273,7 +272,7 @@ void parser_reorder_expression(struct node** node_out)
 
 void parse_exp_normal(struct history* history)
 {
-  struct token* op_token = token_peek_next();
+  struct token*  op_token = token_peek_next();
   const char* op = op_token->sval;
   struct node* node_left = node_peek_expressionable_or_null();
   if (!node_left)
@@ -284,7 +283,8 @@ void parse_exp_normal(struct history* history)
   // Pop off the operator token
   token_next();
 
-  // Pop of the left node
+  // Pop off the left node
+  node_pop();
   node_left->flags |= NODE_FLAG_INSIDE_EXPRESSION;
   parse_expressionable_for_op(history_down(history, history->flags), op);
   struct node* node_right = node_pop();
@@ -323,7 +323,7 @@ static bool is_keyword_variable_modifier(const char* val)
 
 void parse_datatype_modifiers(struct datatype* dtype)
 {
-  struct token* token = token_peek_next();
+  struct token*  token = token_peek_next();
   while (token && token->type == TOKEN_TYPE_KEYWORD)
   {
     if (!is_keyword_variable_modifier(token->sval))
@@ -339,7 +339,7 @@ void parse_datatype_modifiers(struct datatype* dtype)
     {
       dtype->flags &= ~DATATYPE_FLAG_IS_SIGNED;
     }
-    else if (S_EQ(token->sval, "statis"))
+    else if (S_EQ(token->sval, "static"))
     {
       dtype->flags |= DATATYPE_FLAG_IS_STATIC;
     }
@@ -361,10 +361,10 @@ void parse_datatype_modifiers(struct datatype* dtype)
   }
 }
 
-void parser_get_datatype_tokens(struct token** datatype_token, struct token** datatype_secondary_token)
+void parser_get_datatype_tokens(struct token* * datatype_token, struct token* * datatype_secondary_token)
 {
   *datatype_token = token_next();
-  struct token* next_token = token_peek_next();
+  struct token*  next_token = token_peek_next();
   if (token_is_primitive_keyword(next_token))
   {
     *datatype_secondary_token = next_token;
@@ -381,7 +381,7 @@ int parser_datatype_expected_for_type_string(const char* str)
   }
   else if (S_EQ(str, "struct"))
   {
-    type = DATATYPE_EXPECT_STRUCT;
+    type = DATA_TYPE_EXPECT_STRUCT;
   }
 
   return type;
@@ -394,13 +394,13 @@ int parser_get_random_type_index()
   return x;
 }
 
-struct token* parser_build_random_type_name()
+struct token*  parser_build_random_type_name()
 {
   char tmp_name[25];
   sprintf(tmp_name, "customtypename_%i", parser_get_random_type_index());
   char* sval = malloc(sizeof(tmp_name));
   strncpy(sval, tmp_name, sizeof(tmp_name));
-  struct token* token = calloc(1, sizeof(struct token));
+  struct token*  token = calloc(1, sizeof(struct token));
   token->type = TOKEN_TYPE_IDENTIFIER;
   token->sval = sval;
   return token;
@@ -427,8 +427,8 @@ bool parser_datatype_is_secondary_allowed_for_type(const char* type)
   return S_EQ(type, "long") || S_EQ(type, "short") || S_EQ(type, "double") || S_EQ(type, "float");
 }
 
-void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* dataytpe_secondary_token, struct datatype* datatype_out);
-void parser_datatype_adjust_size_for_secondary(struct datatype* datatype, struct token* datatype_secondary_token)
+void parser_datatype_init_type_and_size_for_primitive(struct token*  datatype_token, struct token*  datatype_secondary_token, struct datatype* datatype_out);
+void parser_datatype_adjust_size_for_secondary(struct datatype* datatype, struct token*  datatype_secondary_token)
 {
   if (!datatype_secondary_token)
   {
@@ -442,11 +442,11 @@ void parser_datatype_adjust_size_for_secondary(struct datatype* datatype, struct
   datatype->flags |= DATATYPE_FLAG_IS_SECONDARY;
 }
 
-void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* dataytpe_secondary_token, struct datatype* datatype_out)
+void parser_datatype_init_type_and_size_for_primitive(struct token*  datatype_token, struct token*  datatype_secondary_token, struct datatype* datatype_out)
 {
-  if (!parser_datatype_is_secondary_allowed_for_type(datatype_token->sval) && dataytpe_secondary_token)
+  if (!parser_datatype_is_secondary_allowed_for_type(datatype_token->sval) && datatype_secondary_token)
   {
-    compiler_error(current_process, "You are not allowed a secondary datatype here for the given datatype %s\n", datatype_token->sval);
+    compiler_error(current_process, "Your not allowed a secondary datatype here for the given datatype %s\n", datatype_token->sval);
   }
 
   if (S_EQ(datatype_token->sval, "void"))
@@ -489,10 +489,10 @@ void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_tok
     compiler_error(current_process, "BUG: Invalid primitive datatype\n");
   }
 
-  parser_datatype_adjust_size_for_secondary(datatype_out, dataytpe_secondary_token);
+  parser_datatype_adjust_size_for_secondary(datatype_out, datatype_secondary_token);
 }
 
-void parser_datatype_init_type_and_size(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out, int pointer_depth, int expected_type)
+void parser_datatype_init_type_and_size(struct token*  datatype_token, struct token*  datatype_secondary_token, struct datatype* datatype_out, int pointer_depth, int expected_type)
 {
   if (!parser_datatype_is_secondary_allowed(expected_type) && datatype_secondary_token)
   {
@@ -505,7 +505,7 @@ void parser_datatype_init_type_and_size(struct token* datatype_token, struct tok
       parser_datatype_init_type_and_size_for_primitive(datatype_token, datatype_secondary_token, datatype_out);
     break;
 
-    case DATATYPE_EXPECT_STRUCT:
+    case DATA_TYPE_EXPECT_STRUCT:
     case DATA_TYPE_EXPECT_UNION:
       compiler_error(current_process, "Structure and union types are currently unsupported\n");
     break;
@@ -522,7 +522,7 @@ void parser_datatype_init(struct token* datatype_token, struct token* datatype_s
 
   if (S_EQ(datatype_token->sval, "long") && datatype_secondary_token && S_EQ(datatype_secondary_token->sval, "long"))
   {
-    compiler_warning(current_process, "Our compiler does not support 64 bits longs, therefore your long long is defaulting to 32 bits\n");
+    compiler_warning(current_process, "Our compiler does not support 64 bit longs, therefore your long long is defaulting to 32 bits\n");
     datatype_out->size = DATA_SIZE_DWORD;
   }
 }
@@ -582,7 +582,7 @@ void parser_ignore_int(struct datatype* dtype)
 
   if (!parser_is_int_valid_after_datatype(dtype))
   {
-    compiler_error(current_process, "You provided a secondary \"int\" type however it's not supported with this current abbreviation\n");
+    compiler_error(current_process, "You provided a secondary \"int\" type however its not supported with this current abbrevation\n");
   }
 
   // Ignore the "int" token
@@ -614,7 +614,7 @@ void parser_scope_offset_for_stack(struct node* node, struct history* history)
   int offset = -variable_size(node);
   if (upward_stack)
   {
-    #warning "HANLDE UPWARD STACK"
+    #warning "HANDLE UPWARD STACK"
     compiler_error(current_process, "Not yet implemented\n");
   }
 
@@ -671,7 +671,7 @@ void make_variable_node_and_register(struct history* history, struct datatype* d
   make_variable_node(dtype, name_token, value_node);
   struct node* var_node = node_pop();
 
-  #warning "Rememeber to calculate scope offsets and push to the scope"
+  #warning "Remember to calculate scope offsets and push to the scope"
   // Calculate the scope offset
   parser_scope_offset(var_node, history);
   // Push the variable node to the scope
@@ -739,7 +739,15 @@ void parse_variable(struct datatype* dtype, struct token* name_token, struct his
 
 void parse_symbol()
 {
-  compiler_error(current_process, "Symbols are not yet supported\n");
+  if (token_next_is_symbol('{'))
+  {
+    size_t variable_size = 0;
+    struct history* history = history_begin(HISTORY_FLAG_IS_GLOBAL_SCOPE);
+    parse_body(&variable_size, history);
+    struct node* body_node = node_pop();
+
+    node_push(body_node);
+  }
 }
 
 void parse_statement(struct history* history)
@@ -757,7 +765,7 @@ void parse_statement(struct history* history)
     return;
   }
 
-  // All statemens end with semicolons;
+  // All statements end with semicolons;
   expect_sym(';');
 }
 
@@ -778,13 +786,13 @@ void parser_append_size_for_node_struct_union(struct history* history, size_t* _
 
 void parser_append_size_for_node(struct history* history, size_t* _variable_size, struct node* node);
 
-void parser_append_size_for_variable_list(struct history* history, size_t* _variable_size, struct vector* vec)
+void parser_append_size_for_variable_list(struct history* history, size_t* variable_size, struct vector* vec)
 {
   vector_set_peek_pointer(vec, 0);
   struct node* node = vector_peek_ptr(vec);
   while (node)
   {
-    parser_append_size_for_node(history, _variable_size, node);
+    parser_append_size_for_node(history, variable_size, node);
     node = vector_peek_ptr(vec);
   }
 }
@@ -812,7 +820,7 @@ void parser_append_size_for_node(struct history* history, size_t* _variable_size
   }
 }
 
-void parser_finilize_body(struct history* history, struct node* body_node, struct vector* body_vec, size_t* _variable_size, struct node* largest_align_eligible_var_node, struct node* largest_possible_var_node)
+void parser_finalize_body(struct history* history, struct node* body_node, struct vector* body_vec, size_t* _variable_size, struct node* largest_align_eligible_var_node, struct node* largest_possible_var_node)
 {
   if (history->flags & HISTORY_FLAG_INSIDE_UNION)
   {
@@ -846,9 +854,9 @@ void parse_body_single_statement(size_t* variable_size, struct vector* body_vec,
   struct node* stmt_node = NULL;
   parse_statement(history_down(history, history->flags));
   stmt_node = node_pop();
-  vector_push(body_vec, &body_node);
+  vector_push(body_vec, &stmt_node);
 
-  // Change the varaible_size variable by the size of stmt_node
+  // Change the variable_size variable by the size of stmt_node.
   parser_append_size_for_node(history, variable_size, stmt_node);
   struct node* largest_var_node = NULL;
   if (stmt_node->type == NODE_TYPE_VARIABLE)
@@ -856,13 +864,13 @@ void parse_body_single_statement(size_t* variable_size, struct vector* body_vec,
     largest_var_node = stmt_node;
   }
 
-  parser_finilize_body(history, body_node, body_vec, variable_size, largest_var_node, largest_var_node);
+  parser_finalize_body(history, body_node, body_vec, variable_size, largest_var_node, largest_var_node);
   parser_current_body = body_node->binded.owner;
 
   node_push(body_node);
 }
 
-void parse_body_multiple_statement(size_t* variable_size, struct vector* body_vec, struct history* history)
+void parse_body_multiple_statements(size_t* variable_size, struct vector* body_vec, struct history* history)
 {
   // Create a blank body node
   make_body_node(NULL, 0, false, NULL);
@@ -874,7 +882,7 @@ void parse_body_multiple_statement(size_t* variable_size, struct vector* body_ve
   struct node* largest_possible_var_node = NULL;
   struct node* largest_align_eligible_var_node = NULL;
 
-  // We have a body i.e { } therefore we must pop off the left curly brace
+  // We have a body i.e { } therefore we must pop off the left curly brace..
   expect_sym('{');
 
   while (!token_next_is_symbol('}'))
@@ -901,17 +909,17 @@ void parse_body_multiple_statement(size_t* variable_size, struct vector* body_ve
     vector_push(body_vec, &stmt_node);
 
     // We may have to change the variable size if this statement is a variable
-    parser_append_size_for_node(history, variable_node, variable_node_or_list(stmt_node));
+    parser_append_size_for_node(history, variable_size, variable_node_or_list(stmt_node));
   }
 
-  // Pop off the right curly brace
-  expect_sym('}');
+    // Pop off the right curly brace
+    expect_sym('}');
 
-  parser_finilize_body(history, body_node, body_vec, variable_size, largest_align_eligible_var_node, largest_possible_var_node);
-  parser_current_body = body_node->binded.owner;
+    parser_finalize_body(history, body_node, body_vec, variable_size, largest_align_eligible_var_node, largest_possible_var_node);
+    parser_current_body = body_node->binded.owner;
 
-  // Let's now push the body node back to the stack :)
-  node_push(body_node);
+    // Let's now push the body node back to the stack :) 
+    node_push(body_node);
 }
 
 /**
@@ -929,7 +937,7 @@ void parse_body(size_t* variable_size, struct history* history)
     variable_size = &tmp_size;
   }
 
-  struct vector* body_vec = vector_create(sizeof(struct node));
+  struct vector* body_vec = vector_create(sizeof(struct node*));
   if (!token_next_is_symbol('{'))
   {
     parse_body_single_statement(variable_size, body_vec, history);
@@ -938,7 +946,7 @@ void parse_body(size_t* variable_size, struct history* history)
   }
 
   // We have some statements between curly braces { int a; int b; int c; }
-  parse_body_multiple_statement(variable_size, body_vec, history);
+  parse_body_multiple_statements(variable_size, body_vec, history);
   parser_scope_finish();
 
   #warning "Don't forget to adjust the function stack size"
@@ -976,7 +984,7 @@ void parse_struct_or_union(struct datatype* dtype)
     break;
 
     default:
-      compiler_error(current_process, "COMPILER BUG: The provided datatype is not a structure or a union");
+      compiler_error(current_process, "COMPILER BUG: The provided datatype is not a structure or union\n");
   }
 }
 
@@ -989,11 +997,10 @@ void parse_variable_function_or_struct_union(struct history* history)
   {
     parse_struct_or_union(&dtype);
   }
-
-  // Ignore integer abbreviations if necessary i.e "long int" becomes just "long"
+  // Ignore integer abbreviations if neccessary i.e "long int" becomes just "long"
   parser_ignore_int(&dtype);
 
-  // int abc
+  // int abc;
   struct token* name_token = token_next();
   if (name_token->type != TOKEN_TYPE_IDENTIFIER)
   {
@@ -1013,7 +1020,7 @@ void parse_variable_function_or_struct_union(struct history* history)
     vector_push(var_list, &var_node);
     while (token_is_operator(token_peek_next(), ","))
     {
-      // Getting rid of the comma
+      // Get rid of the comma
       token_next();
       name_token = token_next();
       parse_variable(&dtype, name_token, history);
@@ -1107,24 +1114,27 @@ int parse_next()
     case TOKEN_TYPE_KEYWORD:
       parse_keyword_for_global();
     break;
+
+    case TOKEN_TYPE_SYMBOL:
+      parse_symbol();
+    break;
   }
 
   return 0;
 }
 
-int parse(struct compile_process* process)
+int parse(struct compile_process *process)
 {
-  scope_create_root(process);
-  current_process = process;
-  parser_last_token = NULL;
-  node_set_vector(process->node_vec, process->node_tree_vec);
-
-  struct node* node = NULL;
-  vector_set_peek_pointer(process->token_vec, 0);
-  while (parse_next() == 0)
-  {
-    node = node_peek();
-    vector_push(process->node_tree_vec, &node);
-  }
-  return PARSE_ALL_OK;
+    scope_create_root(process);
+    current_process = process;
+    parser_last_token = NULL;
+    node_set_vector(process->node_vec, process->node_tree_vec);
+    struct node* node = NULL;
+    vector_set_peek_pointer(process->token_vec, 0);
+    while (parse_next() == 0)
+    {
+        node = node_peek();
+        vector_push(process->node_tree_vec, &node);
+    }
+    return PARSE_ALL_OK;
 }

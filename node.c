@@ -25,7 +25,7 @@ struct node* node_peek_or_null()
 
 struct node* node_peek()
 {
-  return *(struct node**)vector_back(node_vector);
+  return *(struct node**)(vector_back(node_vector));
 }
 
 struct node* node_pop()
@@ -46,11 +46,11 @@ struct node* node_pop()
 bool node_is_expressionable(struct node* node)
 {
   return node->type == NODE_TYPE_EXPRESSION ||
-         node->type == NODE_TYPE_EXPRESSION_PARENTHESES ||
-         node->type == NODE_TYPE_UNARY ||
-         node->type == NODE_TYPE_IDENTIFIER ||
-         node->type == NODE_TYPE_NUMBER ||
-         node->type == NODE_TYPE_STRING;
+          node->type == NODE_TYPE_EXPRESSION_PARENTHESES ||
+          node->type == NODE_TYPE_UNARY ||
+          node->type == NODE_TYPE_IDENTIFIER ||
+          node->type == NODE_TYPE_NUMBER ||
+          node->type == NODE_TYPE_STRING;
 }
 
 struct node* node_peek_expressionable_or_null()
@@ -111,7 +111,7 @@ struct node* variable_node(struct node* node)
 
     case NODE_TYPE_UNION:
       // var_node = node->_union.var;
-      assert(1 == 0 && "Unions are not yet supported");
+      assert(1 == 0 && "Unions are not yet supported\n");
     break;
   }
 

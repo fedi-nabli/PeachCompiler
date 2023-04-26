@@ -8,7 +8,7 @@ size_t variable_size(struct node* var_node)
   return datatype_size(&var_node->var.type);
 }
 
-size_t variable_size_for_array(struct node* var_list_node)
+size_t variable_size_for_list(struct node* var_list_node)
 {
   assert(var_list_node->type == NODE_TYPE_VARIABLE_LIST);
   size_t size = 0;
@@ -37,7 +37,7 @@ struct node* variable_struct_or_union_body_node(struct node* node)
 
   // return the union body.
   #warning "Remember to implement unions"
-  printf("NO UNION NODES AREYET IMPLEMENTED\n");
+  printf("NO UNION NODES ARE YET IMPLEMENTED\n");
   exit(1);
 }
 
@@ -79,7 +79,7 @@ int align_value_treat_positive(int val, int to)
 
 int compute_sum_padding(struct vector* vec)
 {
-  int padding  = 0;
+  int padding = 0;
   int last_type = -1;
   bool mixed_types = false;
   vector_set_peek_pointer(vec, 0);

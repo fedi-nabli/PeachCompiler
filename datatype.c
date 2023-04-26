@@ -2,7 +2,7 @@
 
 bool datatype_is_struct_or_union(struct datatype* dtype)
 {
-  return dtype->type == DATA_TYPE_STRUCT || DATA_TYPE_UNION;
+  return dtype->type == DATA_TYPE_STRUCT || dtype->type == DATA_TYPE_UNION;
 }
 
 bool datatype_is_struct_or_union_for_name(const char* name)
@@ -33,7 +33,7 @@ size_t datatype_element_size(struct datatype* dtype)
 
 size_t datatype_size_no_ptr(struct datatype* dtype)
 {
-  if (dtype->size & DATATYPE_FLAG_IS_ARRAY)
+  if (dtype->flags & DATATYPE_FLAG_IS_ARRAY)
   {
     return dtype->array.size;
   }

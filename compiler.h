@@ -420,7 +420,7 @@ enum
 {
   DATA_TYPE_EXPECT_PRIMITIVE,
   DATA_TYPE_EXPECT_UNION,
-  DATATYPE_EXPECT_STRUCT
+  DATA_TYPE_EXPECT_STRUCT
 };
 
 enum
@@ -539,7 +539,7 @@ int align_value(int val, int to);
 int align_value_treat_positive(int val, int to);
 int compute_sum_padding(struct vector* vec);
 
-#define TOTAL_OPERATOR_GROUP 14
+#define TOTAL_OPERATOR_GROUPS 14
 #define MAX_OPERATORS_IN_GROUP 12
 
 enum
