@@ -3,7 +3,7 @@
 #include <assert.h>
 
 static struct compile_process* current_process;
-static struct token*  parser_last_token;
+static struct token* parser_last_token;
 
 extern struct node* parser_current_body;
 extern struct expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_GROUPS];
@@ -92,7 +92,7 @@ void parser_scope_push(struct parser_scope_entity* entity, size_t size)
   scope_push(current_process, entity, size);
 }
 
-static void parser_ignore_nl_or_comment(struct token*  token)
+static void parser_ignore_nl_or_comment(struct token* token)
 {
   while (token && token_is_nl_or_comment_or_newline_seperator(token))
   {
@@ -102,37 +102,37 @@ static void parser_ignore_nl_or_comment(struct token*  token)
   }
 }
 
-static struct token*  token_next()
+static struct token* token_next()
 {
-  struct token*  next_token = vector_peek_no_increment(current_process->token_vec);
+  struct token* next_token = vector_peek_no_increment(current_process->token_vec);
   parser_ignore_nl_or_comment(next_token);
   current_process->pos = next_token->pos;
   parser_last_token = next_token;
   return vector_peek(current_process->token_vec);
 }
 
-static struct token*  token_peek_next()
+static struct token* token_peek_next()
 {
-  struct token*  next_token = vector_peek_no_increment(current_process->token_vec);
+  struct token* next_token = vector_peek_no_increment(current_process->token_vec);
   parser_ignore_nl_or_comment(next_token);
   return vector_peek_no_increment(current_process->token_vec);
 }
 
 static bool token_next_is_operator(const char* op)
 {
-  struct token*  token = token_peek_next();
+  struct token* token = token_peek_next();
   return token_is_operator(token, op);
 }
 
 static bool token_next_is_symbol(char c)
 {
-  struct token*  token = token_peek_next();
+  struct token* token = token_peek_next();
   return token_is_symbol(token, c);
 }
 
 static void expect_sym(char c)
 {
-  struct token*  next_token = token_next();
+  struct token* next_token = token_next();
   if (!next_token || next_token->type != TOKEN_TYPE_SYMBOL || next_token->cval != c)
   {
     compiler_error(current_process, "Expecting symbol %c however something else was provided\n", c);
@@ -141,7 +141,7 @@ static void expect_sym(char c)
 
 static void expect_op(const char* op)
 {
-  struct token*  next_token = token_next();
+  struct token* next_token = token_next();
   if (!next_token || next_token->type != TOKEN_TYPE_OPERATOR || !S_EQ(next_token->sval, op))
   {
     compiler_error(current_process, "Expecting the operator %s but something else was provided\n", next_token->sval);
@@ -150,7 +150,7 @@ static void expect_op(const char* op)
 
 void parse_single_token_to_node()
 {
-  struct token*  token = token_next();
+  struct token* token = token_next();
   struct node* node = NULL;
 
   switch(token->type)
@@ -250,6 +250,7 @@ void parser_reorder_expression(struct node** node_out)
     return;
   }
 
+  // 50*30+20
   // 50*E(30+20)
   // 50*EXPRESSION
   // EXPRESSION(50*EXPRESSION(30+20))
@@ -272,7 +273,7 @@ void parser_reorder_expression(struct node** node_out)
 
 void parse_exp_normal(struct history* history)
 {
-  struct token*  op_token = token_peek_next();
+  struct token* op_token = token_peek_next();
   const char* op = op_token->sval;
   struct node* node_left = node_peek_expressionable_or_null();
   if (!node_left)
@@ -323,7 +324,7 @@ static bool is_keyword_variable_modifier(const char* val)
 
 void parse_datatype_modifiers(struct datatype* dtype)
 {
-  struct token*  token = token_peek_next();
+  struct token* token = token_peek_next();
   while (token && token->type == TOKEN_TYPE_KEYWORD)
   {
     if (!is_keyword_variable_modifier(token->sval))
@@ -364,7 +365,7 @@ void parse_datatype_modifiers(struct datatype* dtype)
 void parser_get_datatype_tokens(struct token* * datatype_token, struct token* * datatype_secondary_token)
 {
   *datatype_token = token_next();
-  struct token*  next_token = token_peek_next();
+  struct token* next_token = token_peek_next();
   if (token_is_primitive_keyword(next_token))
   {
     *datatype_secondary_token = next_token;
@@ -394,13 +395,13 @@ int parser_get_random_type_index()
   return x;
 }
 
-struct token*  parser_build_random_type_name()
+struct token* parser_build_random_type_name()
 {
   char tmp_name[25];
   sprintf(tmp_name, "customtypename_%i", parser_get_random_type_index());
   char* sval = malloc(sizeof(tmp_name));
   strncpy(sval, tmp_name, sizeof(tmp_name));
-  struct token*  token = calloc(1, sizeof(struct token));
+  struct token* token = calloc(1, sizeof(struct token));
   token->type = TOKEN_TYPE_IDENTIFIER;
   token->sval = sval;
   return token;
@@ -427,8 +428,8 @@ bool parser_datatype_is_secondary_allowed_for_type(const char* type)
   return S_EQ(type, "long") || S_EQ(type, "short") || S_EQ(type, "double") || S_EQ(type, "float");
 }
 
-void parser_datatype_init_type_and_size_for_primitive(struct token*  datatype_token, struct token*  datatype_secondary_token, struct datatype* datatype_out);
-void parser_datatype_adjust_size_for_secondary(struct datatype* datatype, struct token*  datatype_secondary_token)
+void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out);
+void parser_datatype_adjust_size_for_secondary(struct datatype* datatype, struct token* datatype_secondary_token)
 {
   if (!datatype_secondary_token)
   {
@@ -442,11 +443,11 @@ void parser_datatype_adjust_size_for_secondary(struct datatype* datatype, struct
   datatype->flags |= DATATYPE_FLAG_IS_SECONDARY;
 }
 
-void parser_datatype_init_type_and_size_for_primitive(struct token*  datatype_token, struct token*  datatype_secondary_token, struct datatype* datatype_out)
+void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out)
 {
   if (!parser_datatype_is_secondary_allowed_for_type(datatype_token->sval) && datatype_secondary_token)
   {
-    compiler_error(current_process, "Your not allowed a secondary datatype here for the given datatype %s\n", datatype_token->sval);
+    compiler_error(current_process, "You are not allowed a secondary datatype here for the given datatype %s\n", datatype_token->sval);
   }
 
   if (S_EQ(datatype_token->sval, "void"))
@@ -492,7 +493,7 @@ void parser_datatype_init_type_and_size_for_primitive(struct token*  datatype_to
   parser_datatype_adjust_size_for_secondary(datatype_out, datatype_secondary_token);
 }
 
-void parser_datatype_init_type_and_size(struct token*  datatype_token, struct token*  datatype_secondary_token, struct datatype* datatype_out, int pointer_depth, int expected_type)
+void parser_datatype_init_type_and_size(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out, int pointer_depth, int expected_type)
 {
   if (!parser_datatype_is_secondary_allowed(expected_type) && datatype_secondary_token)
   {
@@ -582,7 +583,7 @@ void parser_ignore_int(struct datatype* dtype)
 
   if (!parser_is_int_valid_after_datatype(dtype))
   {
-    compiler_error(current_process, "You provided a secondary \"int\" type however its not supported with this current abbrevation\n");
+    compiler_error(current_process, "You provided a secondary \"int\" type however it's not supported with this current abbrevation\n");
   }
 
   // Ignore the "int" token
@@ -912,14 +913,14 @@ void parse_body_multiple_statements(size_t* variable_size, struct vector* body_v
     parser_append_size_for_node(history, variable_size, variable_node_or_list(stmt_node));
   }
 
-    // Pop off the right curly brace
-    expect_sym('}');
+  // Pop off the right curly brace
+  expect_sym('}');
 
-    parser_finalize_body(history, body_node, body_vec, variable_size, largest_align_eligible_var_node, largest_possible_var_node);
-    parser_current_body = body_node->binded.owner;
+  parser_finalize_body(history, body_node, body_vec, variable_size, largest_align_eligible_var_node, largest_possible_var_node);
+  parser_current_body = body_node->binded.owner;
 
-    // Let's now push the body node back to the stack :) 
-    node_push(body_node);
+  // Let's now push the body node back to the stack :) 
+  node_push(body_node);
 }
 
 /**
@@ -1123,7 +1124,7 @@ int parse_next()
   return 0;
 }
 
-int parse(struct compile_process *process)
+int parse(struct compile_process* process)
 {
     scope_create_root(process);
     current_process = process;
