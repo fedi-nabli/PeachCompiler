@@ -95,9 +95,15 @@ void symresolver_build_for_function_node(struct compile_process* process, struct
   compiler_error(process, "Functions are not yet supported\n");
 }
 
-void symresolver_build_for_struct_node(struct compile_process* process, struct node* node)
+void symresolver_build_for_structure_node(struct compile_process* process, struct node* node)
 {
-  compiler_error(process, "Structures are not yet supprted\n");
+  if (node->flags & NODE_FLAG_IS_FORWARD_DECLARATION)
+  {
+    // We do not register forward declarations.
+    return;
+  }
+
+  symresolver_register_symbol(process, node->_struct.name, SYMBOL_TYPE_NODE, node);
 }
 
 void symresolver_build_for_union_node(struct compile_process* process, struct node* node)
@@ -118,7 +124,7 @@ void symresolver_build_for_node(struct compile_process* process, struct node* no
     break;
 
     case NODE_TYPE_STRUCT:
-      symresolver_build_for_struct_node(process, node);
+      symresolver_build_for_structure_node(process, node);
     break;
 
     case NODE_TYPE_UNION:

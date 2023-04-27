@@ -253,7 +253,9 @@ enum
 
 enum
 {
-  NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
+  NODE_FLAG_INSIDE_EXPRESSION = 0b00000001,
+  NODE_FLAG_IS_FORWARD_DECLARATION = 0b00000010,
+  NODE_FLAG_HAS_VARIABLE_COMBINED = 0b00000100
 };
 
 struct array_brackets
@@ -483,6 +485,7 @@ bool node_is_struct_or_union_variable(struct node* node);
 struct node* variable_node(struct node* node);
 bool variable_node_is_primitive(struct node* node);
 struct node* variable_node_or_list(struct node* node);
+void make_struct_node(const char* name, struct node* body_node);
 
 // Array functions
 struct array_brackets* array_brackets_new();
@@ -538,6 +541,9 @@ int padding(int val, int to);
 int align_value(int val, int to);
 int align_value_treat_positive(int val, int to);
 int compute_sum_padding(struct vector* vec);
+
+// Symbol resolver
+void symresolver_build_for_node(struct compile_process* process, struct node* node);
 
 #define TOTAL_OPERATOR_GROUPS 14
 #define MAX_OPERATORS_IN_GROUP 12
