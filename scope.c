@@ -93,7 +93,7 @@ void* scope_last_entity_from_scope_stop_at(struct scope* scope, struct scope* st
   struct scope* parent = scope->parent;
   if (parent)
   {
-    return scope_last_entity_from_scope_stop_at(scope, stop_scope);
+    return scope_last_entity_from_scope_stop_at(parent, stop_scope);
   }
 
   return NULL;
