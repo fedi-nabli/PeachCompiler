@@ -486,6 +486,9 @@ struct node* variable_node(struct node* node);
 bool variable_node_is_primitive(struct node* node);
 struct node* variable_node_or_list(struct node* node);
 void make_struct_node(const char* name, struct node* body_node);
+struct node* node_from_sym(struct symbol* sym);
+struct node* node_from_symbol(struct compile_process* current_process, const char* name);
+struct node* struct_node_for_name(struct compile_process* current_process, const char* name);
 
 // Array functions
 struct array_brackets* array_brackets_new();
@@ -544,6 +547,7 @@ int compute_sum_padding(struct vector* vec);
 
 // Symbol resolver
 void symresolver_build_for_node(struct compile_process* process, struct node* node);
+struct symbol* symresolver_get_symbol(struct compile_process* process, const char* name);
 
 #define TOTAL_OPERATOR_GROUPS 14
 #define MAX_OPERATORS_IN_GROUP 12
