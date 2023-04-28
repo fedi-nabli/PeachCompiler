@@ -524,6 +524,7 @@ void make_struct_node(const char* name, struct node* body_node);
 struct node* node_from_sym(struct symbol* sym);
 struct node* node_from_symbol(struct compile_process* current_process, const char* name);
 struct node* struct_node_for_name(struct compile_process* current_process, const char* name);
+size_t function_node_argument_stack_addition(struct node* node);
 
 // Array functions
 struct array_brackets* array_brackets_new();
