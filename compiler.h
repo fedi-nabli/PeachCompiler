@@ -409,6 +409,18 @@ struct node
       // The stack size for all variables inside this function.
       size_t stack_size;
     } func;
+
+    struct statement {
+      struct if_stmt
+      {
+        // if(COND) {// body}
+        struct node* cond_node;
+        struct node* body_node;
+
+        // if (COND) {} else {}
+        struct node* next;
+      } if_stmt;
+    } stmt;
   };
 
   union
@@ -516,6 +528,7 @@ void make_bracket_node(struct node* node);
 void make_body_node(struct vector* body_vec, size_t size, bool padded, struct node* largest_var_node);
 void make_function_node(struct datatype* ret_type, const char* name, struct vector* arguments, struct node* body_node);
 void make_exp_parentheses_node(struct node* exp_node);
+void make_if_node(struct node* cond_node, struct node* body_node, struct node* next_node);
 struct node* node_pop();
 struct node* node_peek();
 struct node* node_peek_or_null();
