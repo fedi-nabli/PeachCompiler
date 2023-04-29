@@ -14,4 +14,6 @@ int main(int x)
   {
     int d = 44;
   }
+
+  return;
 }

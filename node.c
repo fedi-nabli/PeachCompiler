@@ -99,6 +99,11 @@ void make_function_node(struct datatype* ret_type, const char* name, struct vect
   #warning "Don't forget to build the frame elements"
 }
 
+void make_return_node(struct node* exp_node)
+{
+  node_create(&(struct node){.type=NODE_TYPE_STATEMENT_RETURN, .stmt.return_stmt.exp=exp_node});
+}
+
 void make_if_node(struct node* cond_node, struct node* body_node, struct node* next_node)
 {
   node_create(&(struct node){.type=NODE_TYPE_STATEMENT_IF, .stmt.if_stmt.cond_node=cond_node, .stmt.if_stmt.body_node=body_node, .stmt.if_stmt.next=next_node});
