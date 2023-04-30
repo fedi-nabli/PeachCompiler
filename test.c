@@ -5,4 +5,6 @@ int main(int x)
   {
     continue;
   }
+
+  abc:
 }
