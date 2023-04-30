@@ -580,6 +580,8 @@ void make_for_node(struct node* init_node, struct node* cond_node, struct node* 
 void make_while_node(struct node* exp_node, struct node* body_node);
 void make_do_while_node(struct node* body_node, struct node* exp_node);
 void make_switch_node(struct node* exp_node, struct node* body_node, struct vector* cases, bool has_default_case);
+void make_continue_node();
+void make_break_node();
 struct node* node_pop();
 struct node* node_peek();
 struct node* node_peek_or_null();
