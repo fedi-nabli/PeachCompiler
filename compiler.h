@@ -445,6 +445,12 @@ struct node
         struct node* exp_node;
         struct node* body_node;
       } while_stmt;
+
+      struct do_while_stmt
+      {
+        struct node* exp_node;
+        struct node* body_node;
+      } do_while_stmt;
     } stmt;
   };
 
@@ -558,6 +564,7 @@ void make_else_node(struct node* body_node);
 void make_return_node(struct node* exp_node);
 void make_for_node(struct node* init_node, struct node* cond_node, struct node* loop_node, struct node* body_node);
 void make_while_node(struct node* exp_node, struct node* body_node);
+void make_do_while_node(struct node* body_node, struct node* exp_node);
 struct node* node_pop();
 struct node* node_peek();
 struct node* node_peek_or_null();
