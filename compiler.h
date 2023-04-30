@@ -297,6 +297,12 @@ struct datatype
   } array;
 };
 
+struct parsed_switch_case
+{
+  // Index of parsed case
+  int index;
+};
+
 struct node
 {
   int type;
@@ -451,6 +457,14 @@ struct node
         struct node* exp_node;
         struct node* body_node;
       } do_while_stmt;
+
+      struct switch_stmt
+      {
+        struct node* exp;
+        struct node* body;
+        struct vector* cases;
+        bool has_default_case;
+      } switch_stmt;
     } stmt;
   };
 
@@ -565,6 +579,7 @@ void make_return_node(struct node* exp_node);
 void make_for_node(struct node* init_node, struct node* cond_node, struct node* loop_node, struct node* body_node);
 void make_while_node(struct node* exp_node, struct node* body_node);
 void make_do_while_node(struct node* body_node, struct node* exp_node);
+void make_switch_node(struct node* exp_node, struct node* body_node, struct vector* cases, bool has_default_case);
 struct node* node_pop();
 struct node* node_peek();
 struct node* node_peek_or_null();
