@@ -1503,6 +1503,16 @@ void parse_break(struct history* history)
   make_break_node();
 }
 
+void parse_goto(struct history* history)
+{
+  expect_keyword("goto");
+  parse_identifier(history_begin(0));
+  expect_sym(';');
+
+  struct node* label_node = node_pop();
+  make_goto_node(label_node);
+}
+
 void parse_label(struct history* history)
 {
   expect_sym(':');
@@ -1565,6 +1575,13 @@ void parse_keyword(struct history* history)
     parse_switch(history);
     return;
   }
+  else if (S_EQ(token->sval, "goto"))
+  {
+    parse_goto(history);
+    return;
+  }
+
+  compiler_error(current_process, "Invalid keyword\n");
 }
 
 int parse_expressionable_single(struct history* history)
