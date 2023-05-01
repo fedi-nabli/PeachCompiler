@@ -7,10 +7,10 @@ const char* primitive_types[PRIMITIVE_TYPES_TOTAL] = {
 
 bool token_is_identifier(struct token* token)
 {
-  return token && TOKEN_TYPE_IDENTIFIER;
+  return token && token->type == TOKEN_TYPE_IDENTIFIER;
 }
 
-bool token_is_keyword(struct token* token, const char* value)
+bool token_is_keyword(struct token *token, const char *value)
 {
   return token && token->type == TOKEN_TYPE_KEYWORD && S_EQ(token->sval, value);
 }
@@ -31,8 +31,8 @@ bool token_is_nl_or_comment_or_newline_seperator(struct token* token)
     return false;
 
   return token->type == TOKEN_TYPE_NEWLINE ||
-         token->type == TOKEN_TYPE_COMMENT ||
-         token_is_symbol(token, '\\');
+          token->type == TOKEN_TYPE_COMMENT ||
+          token_is_symbol(token, '\\');
 }
 
 bool token_is_primitive_keyword(struct token* token)
@@ -40,7 +40,7 @@ bool token_is_primitive_keyword(struct token* token)
   if (!token)
     return false;
   
-  if (!token->type == TOKEN_TYPE_KEYWORD)
+  if (token->type != TOKEN_TYPE_KEYWORD)
     return false;
 
   for (int i = 0; i < PRIMITIVE_TYPES_TOTAL; i++)
