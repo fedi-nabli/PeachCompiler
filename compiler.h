@@ -379,6 +379,23 @@ struct node
       struct node* var;
     } _struct;
 
+    struct _union
+    {
+      const char* name;
+      struct node* body_n;
+
+      /**
+       * union abc
+       * {
+       * 
+       * } var_name;
+       * 
+       * NULL if no variable attached to union.
+       * 
+       */
+      struct node* var;
+    } _union;
+
     struct body
     {
       /**
@@ -626,9 +643,11 @@ struct node* variable_node(struct node* node);
 bool variable_node_is_primitive(struct node* node);
 struct node* variable_node_or_list(struct node* node);
 void make_struct_node(const char* name, struct node* body_node);
+void make_union_node(const char* name, struct node* body_node);
 struct node* node_from_sym(struct symbol* sym);
 struct node* node_from_symbol(struct compile_process* current_process, const char* name);
 struct node* struct_node_for_name(struct compile_process* current_process, const char* name);
+struct node* union_node_for_name(struct compile_process* current_process, const char* name);
 size_t function_node_argument_stack_addition(struct node* node);
 bool node_is_expression_or_parentheses(struct node* node);
 bool node_is_value_type(struct node* node);
