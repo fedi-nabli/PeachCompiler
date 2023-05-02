@@ -54,15 +54,15 @@ enum
   HISTORY_FLAG_IS_GLOBAL_SCOPE = 0b00000100,
   HISTORY_FLAG_INSIDE_STRUCTURE = 0b00001000,
   HISTORY_FLAG_INSIDE_FUNCTION_BODY = 0b00010000,
-  HISTORY_FLAG_IN_SWITCH_STATMENT = 0b00100000,
+  HISTORY_FLAG_IN_SWITCH_STATEMENT = 0b00100000,
   HISTORY_FLAG_PARENTHESES_IS_NOT_A_FUNCTION_CALL = 0b01000000
 };
 
 struct history_cases
 {
-  // A vectir of parsed_swutch_cases
+  // A vector of parsed_switch_case
   struct vector* cases;
-  // Is there a default keyword in the switch statement body
+  // Is there a default keyword inthe switch statement body
   bool has_default_case;
 };
 
@@ -94,18 +94,18 @@ struct parser_history_switch parser_new_switch_statement(struct history* history
 {
   memset(&history->_switch, 0, sizeof(&history->_switch));
   history->_switch.case_data.cases = vector_create(sizeof(struct parsed_switch_case));
-  history->flags |= HISTORY_FLAG_IN_SWITCH_STATMENT;
+  history->flags |= HISTORY_FLAG_IN_SWITCH_STATEMENT;
   return history->_switch;
 }
 
 void parser_end_switch_statement(struct parser_history_switch* switch_history)
 {
-  // DO nothing
+  // Do nothing.
 }
 
 void parser_register_case(struct history* history, struct node* case_node)
 {
-  assert(history->flags & HISTORY_FLAG_IN_SWITCH_STATMENT);
+  assert(history->flags & HISTORY_FLAG_IN_SWITCH_STATEMENT);
   struct parsed_switch_case scase;
   scase.index = case_node->stmt._case.exp->llnum;
   vector_push(history->_switch.case_data.cases, &scase);
@@ -212,7 +212,7 @@ static void expect_keyword(const char* keyword)
   struct token* next_token = token_next();
   if (!next_token || next_token->type != TOKEN_TYPE_KEYWORD || !S_EQ(next_token->sval, keyword))
   {
-    compiler_error(current_process, "Expecting the jeyword %s but something else was provided\n", keyword);
+    compiler_error(current_process, "Expecting the keyword %s but something else was provided\n", keyword);
   }
 }
 
@@ -224,15 +224,15 @@ void parse_single_token_to_node()
   switch(token->type)
   {
     case TOKEN_TYPE_NUMBER:
-      node = node_create(&(struct node){.type=NODE_TYPE_NUMBER, .llnum=token->llnum});
+      node = node_create(&(struct node){.type = NODE_TYPE_NUMBER, .llnum = token->llnum});
     break;
-
+  
     case TOKEN_TYPE_IDENTIFIER:
-      node = node_create(&(struct node){.type=NODE_TYPE_IDENTIFIER, .sval=token->sval});
+      node = node_create(&(struct node){.type = NODE_TYPE_IDENTIFIER, .sval = token->sval});
     break;
 
     case TOKEN_TYPE_STRING:
-      node = node_create(&(struct node){.type=NODE_TYPE_STRING, .sval=token->sval});
+      node = node_create(&(struct node){.type = NODE_TYPE_STRING, .sval = token->sval});
     break;
 
     default:
@@ -387,7 +387,7 @@ void parse_for_parentheses(struct history* history)
 
   struct node* left_node = NULL;
   struct node* tmp_node = node_peek_or_null();
-  
+
   // test(50+20)
   if (tmp_node && node_is_value_type(tmp_node))
   {
@@ -448,7 +448,7 @@ void parse_for_array(struct history* history)
 
 void parse_for_cast()
 {
-  // "(" is already parsed i.e (char) is seen as char)
+  // "(" is already parsed i.e (char) seen as char)
   struct datatype dtype = {};
   parse_datatype(&dtype);
   expect_sym(')');
@@ -540,7 +540,7 @@ void parse_datatype_modifiers(struct datatype* dtype)
   }
 }
 
-void parser_get_datatype_tokens(struct token* * datatype_token, struct token* * datatype_secondary_token)
+void parser_get_datatype_tokens(struct token** datatype_token, struct token** datatype_secondary_token)
 {
   *datatype_token = token_next();
   struct token* next_token = token_peek_next();
@@ -703,7 +703,7 @@ void parser_datatype_init_type_and_size(struct token* datatype_token, struct tok
       datatype_out->size = size_of_struct(datatype_token->sval);
       datatype_out->struct_node = struct_node_for_name(current_process, datatype_token->sval);
     break;
-    
+
     case DATA_TYPE_EXPECT_UNION:
       compiler_error(current_process, "Union types are currently unsupported\n");
     break;
@@ -745,7 +745,7 @@ void parse_datatype_type(struct datatype* dtype)
     }
   }
 
-  // int**
+  // int** 
   int pointer_depth = parser_get_pointer_depth();
   parser_datatype_init(datatype_token, datatype_secondary_token, dtype, pointer_depth, expected_type);
 }
@@ -765,7 +765,7 @@ bool parser_is_int_valid_after_datatype(struct datatype* dtype)
   return dtype->type == DATA_TYPE_LONG || dtype->type == DATA_TYPE_FLOAT || dtype->type == DATA_TYPE_DOUBLE;
 }
 
-/**
+/** 
  * long int abc;
  *
  */
@@ -774,7 +774,7 @@ void parser_ignore_int(struct datatype* dtype)
 {
   if (!token_is_keyword(token_peek_next(), "int"))
   {
-    // No integer to ignore
+    // No integer to ignore.
     return;
   }
 
@@ -796,7 +796,7 @@ void parse_expressionable_root(struct history* history)
 
 struct datatype_struct_node_fix_private
 {
-  // Node to fix
+  // Node to fix.
   struct node* node;
 };
 
@@ -804,6 +804,7 @@ bool datatype_struct_node_fix(struct fixup* fixup)
 {
   struct datatype_struct_node_fix_private* private = fixup_private(fixup);
   struct datatype* dtype = &private->node->var.type;
+  dtype->type = DATA_TYPE_STRUCT;
   dtype->size = size_of_struct(dtype->type_str);
   dtype->struct_node = struct_node_for_name(current_process, dtype->type_str);
   if (!dtype->struct_node)
@@ -833,7 +834,7 @@ void make_variable_node(struct datatype* dtype, struct token* name_token, struct
   {
     struct datatype_struct_node_fix_private* private = calloc(1, sizeof(struct datatype_struct_node_fix_private));
     private->node = var_node;
-    fixup_register(parser_fixup_sys, &(struct fixup_config){.fix=datatype_struct_node_fix, .end=datatype_struct_node_end});
+    fixup_register(parser_fixup_sys, &(struct fixup_config){.fix=datatype_struct_node_fix, .end=datatype_struct_node_end, .private=private});
   }
 }
 
@@ -994,7 +995,7 @@ void parse_function(struct datatype* ret_type, struct token* name_token, struct 
   function_node->func.args.vector = arguments_vector;
   if (symresolver_get_symbol_for_native_function(current_process, name_token->sval))
   {
-    function_node->flags |= FUNCTION_NODE_FLAG_IS_NATIVE;
+    function_node->func.flags |= FUNCTION_NODE_FLAG_IS_NATIVE;
   }
 
   if (token_next_is_symbol('{'))
@@ -1200,15 +1201,15 @@ void parse_body_multiple_statements(size_t* variable_size, struct vector* body_v
   parser_finalize_body(history, body_node, body_vec, variable_size, largest_align_eligible_var_node, largest_possible_var_node);
   parser_current_body = body_node->binded.owner;
 
-  // Let's now push the body node back to the stack :) 
+  // Let's now push the body node back to the stack :)
   node_push(body_node);
 }
 
-/**
- * @brief 
- * 
+/** 
+ * @brief
+ *
  * @param variable_size Set to the sum of all variable sizes encountered in the parsed body
- * @param history 
+ * @param history
  */
 void parse_body(size_t* variable_size, struct history* history)
 {
@@ -1249,10 +1250,10 @@ void parse_struct_no_new_scope(struct datatype* dtype, bool is_forward_declarati
   struct node* struct_node = node_pop();
   if (body_node)
   {
-    dtype->size = struct_node->body.size;
+    dtype->size = body_node->body.size;
   }
   dtype->struct_node = struct_node;
-  
+
   if (token_is_identifier(token_peek_next()))
   {
     struct token* var_name = token_next();
@@ -1358,6 +1359,12 @@ struct vector* parse_function_arguments(struct history* history)
   return arguments_vec;
 }
 
+void parse_forward_declaration(struct datatype* dtype)
+{
+  // Since this is a forward declaration, parse the structure
+  parse_struct(dtype);
+}
+
 void parse_variable_function_or_struct_union(struct history* history)
 {
   struct datatype dtype;
@@ -1372,6 +1379,13 @@ void parse_variable_function_or_struct_union(struct history* history)
     node_push(su_node);
     return;
   }
+
+  if (token_next_is_symbol(';'))
+  {
+    parse_forward_declaration(&dtype);
+    return;
+  }
+
   // Ignore integer abbreviations if neccessary i.e "long int" becomes just "long"
   parser_ignore_int(&dtype);
 
@@ -1431,18 +1445,18 @@ struct node* parse_else_or_else_if(struct history* history)
   if (token_next_is_keyword("else"))
   {
     // We have an else or an else if
-    // pop off else
+    // pop off "else"
     token_next();
 
     if (token_next_is_keyword("if"))
     {
-      // This is en else if not an else
+      // Okay this is an else if not an else
       parse_if_stmt(history_down(history, 0));
       node = node_pop();
       return node;
     }
 
-    // It's an else stateùent
+    // Its an else statement
     node = parse_else(history_down(history, 0));
   }
   return node;
@@ -1458,7 +1472,7 @@ void parse_if_stmt(struct history* history)
 
   struct node* cond_node = node_pop();
   size_t var_size = 0;
-  // if (0) { }
+  // if(0) { }
   parse_body(&var_size, history);
   struct node* body_node = node_pop();
   make_if_node(cond_node, body_node, parse_else_or_else_if(history));
@@ -1497,7 +1511,7 @@ void parse_switch(struct history* history)
   size_t variable_size = 0;
   parse_body(&variable_size, history);
   struct node* body_node = node_pop();
-  // Make rhe switch node
+  // Make the switch node
   make_switch_node(switch_exp_node, body_node, _switch.case_data.cases, _switch.case_data.has_default_case);
   parser_end_switch_statement(&_switch);
 }
@@ -1530,7 +1544,7 @@ bool parse_for_loop_part(struct history* history)
   if (token_next_is_symbol(';'))
   {
     // We have nothing here i.e "for (;"
-    // ignore the semicolo
+    // Ignore the semicolon
     token_next();
     return false;
   }
@@ -1576,7 +1590,6 @@ void parse_for_stmt(struct history* history)
     loop_node = node_pop();
   }
 
-  // for (int i = 0; i < 3; i++)
   expect_sym(')');
 
   size_t variable_size = 0;
@@ -1588,8 +1601,8 @@ void parse_for_stmt(struct history* history)
 void parse_return(struct history* history)
 {
   expect_keyword("return");
-  
-  // For returns with no expression
+
+  // For returns with no expressions
   if (token_next_is_symbol(';'))
   {
     expect_sym(';');

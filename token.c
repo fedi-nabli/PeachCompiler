@@ -10,7 +10,7 @@ bool token_is_identifier(struct token* token)
   return token && token->type == TOKEN_TYPE_IDENTIFIER;
 }
 
-bool token_is_keyword(struct token *token, const char *value)
+bool token_is_keyword(struct token* token, const char* value)
 {
   return token && token->type == TOKEN_TYPE_KEYWORD && S_EQ(token->sval, value);
 }

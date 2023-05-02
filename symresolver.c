@@ -87,7 +87,7 @@ struct node* symresolver_node(struct symbol* sym)
 
 void symresolver_build_for_variable_node(struct compile_process* process, struct node* node)
 {
-  compiler_error(process, "Variable are not yet supported\n");
+  compiler_error(process, "Variables are not yet supported\n");
 }
 
 void symresolver_build_for_function_node(struct compile_process* process, struct node* node)

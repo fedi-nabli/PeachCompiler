@@ -1,4 +1,11 @@
+struct dog;
+struct dog
+{
+   int x;
+};
+
 int main(int x, int y)
 {
-  x = (int) 30;
+   struct dog* b;
+   x = (int) 30;
 }

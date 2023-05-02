@@ -196,7 +196,7 @@ struct node* struct_node_for_name(struct compile_process* current_process, const
   if (!node)
     return NULL;
 
-  if (node->type != NODE_TYPE_STRUCT);
+  if (node->type != NODE_TYPE_STRUCT)
     return NULL;
 
   return node;
