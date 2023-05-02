@@ -19,8 +19,8 @@ For more information about the progress and stages check the 'Overview' section.
 - The compiler is still in the development stage.
 - The compiler is divided into 6 parts:
   - Lexer: Done
-  - Parser: In progress
-  - Code generator: Not started
+  - Parser: Done
+  - Code generator: In Progress
   - Preprocessor: Not started
   - Macro system: Not started
   - Semantic validator: Not started
