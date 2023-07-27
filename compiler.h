@@ -687,7 +687,7 @@ struct resolver_process
     struct resolver_scope* current;
   } scope;
 
-  struct compile_process* process;
+  struct compile_process* compiler;
   struct resolver_callbacks callbacks;
 };
 
@@ -841,7 +841,7 @@ struct resolver_entity
   struct resolver_entity* next;
 
   // The previous entity
-  struct reolver_entity* prev;
+  struct resolver_entity* prev;
 };
 
 enum
