@@ -784,7 +784,6 @@ struct resolver_entity
     struct resolver_array
     {
       struct datatype dtype;
-      int multiplier;
       struct node* array_index_node;
       int index;
     } array;
@@ -1026,7 +1025,10 @@ size_t variable_size(struct node* var_node);
  * @param var_list_node
  * @return size_t The sum of all variable node sizes in the list.
  */
-size_t variable_size_for_array(struct node* var_list_node);
+size_t variable_size_for_list(struct node* var_list_node);
+
+int array_multiplier(struct datatype* dtype, int index, int index_value);
+int array_offset(struct datatype* dtype, int index, int index_value);
 
 // Padding helper functions
 int padding(int val, int to);

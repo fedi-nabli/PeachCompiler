@@ -103,3 +103,36 @@ int compute_sum_padding(struct vector* vec)
 
   return padding;
 }
+
+int array_multiplier(struct datatype* dtype, int index, int index_value)
+{
+  if (!(dtype->flags & DATATYPE_FLAG_IS_ARRAY))
+  {
+    return index_value;
+  }
+
+  vector_set_peek_pointer(dtype->array.brackets->n_brackets, index+1);
+  int size_sum = index_value;
+  struct node* bracket_node = vector_peek_ptr(dtype->array.brackets->n_brackets);
+  while (bracket_node)
+  {
+    assert(bracket_node->bracket.inner->type == NODE_TYPE_NUMBER);
+    int declared_index = bracket_node->bracket.inner->llnum;
+    int size_value = declared_index;
+    size_sum *= size_value;
+    bracket_node = vector_peek_ptr(dtype->array.brackets->n_brackets);
+  }
+
+  return size_sum;
+}
+
+int array_offset(struct datatype* dtype, int index, int index_value)
+{
+  if (!(dtype->flags & DATATYPE_FLAG_IS_ARRAY) ||
+      (index == vector_count(dtype->array.brackets->n_brackets) - 1))
+  {
+    return index_value * datatype_element_size(dtype);
+  }
+
+  return array_multiplier(dtype, index, index_value) * datatype_element_size(dtype);
+}
