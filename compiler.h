@@ -890,6 +890,12 @@ enum
 
 enum
 {
+  STRUCT_ACCESS_BACKWARDS = 0b00000001,
+  STRUCT_STOP_AT_POINTER_ACCESS = 0b00000010
+};
+
+enum
+{
   // This flag is set for native functions
   FUNCTION_NODE_FLAG_IS_NATIVE = 0b00000001
 };
@@ -961,6 +967,7 @@ void node_push(struct node* node);
 void node_set_vector(struct vector* vec, struct vector* root_vec);
 bool node_is_expressionable(struct node* node);
 struct node* node_peek_expressionable_or_null();
+bool node_is_struct_or_union(struct node* node);
 bool node_is_struct_or_union_variable(struct node* node);
 struct node* variable_node(struct node* node);
 bool variable_node_is_primitive(struct node* node);
@@ -1029,6 +1036,9 @@ size_t variable_size_for_list(struct node* var_list_node);
 
 int array_multiplier(struct datatype* dtype, int index, int index_value);
 int array_offset(struct datatype* dtype, int index, int index_value);
+int struct_offset(struct compile_process* compile_proc, const char* struct_name, const char* var_name, struct node** var_node_out, int last_pos, int flags);
+struct node* body_largest_variable_node(struct node* body_node);
+struct node* variable_struct_or_union_largest_variable_node(struct node* var_node);
 
 // Padding helper functions
 int padding(int val, int to);
