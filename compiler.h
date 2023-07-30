@@ -982,8 +982,16 @@ size_t function_node_argument_stack_addition(struct node* node);
 bool node_is_expression_or_parentheses(struct node* node);
 bool node_is_value_type(struct node* node);
 bool node_is_expression(struct node* node, const char* op);
-bool is_array_node(struct node* node);
 bool is_node_assignment(struct node* node);
+
+//
+bool is_access_operator(const char* op);
+bool is_access_node(struct node* node);
+bool is_access_node_with_op(struct node* node, const char* op);
+bool is_array_operator(const char* op);
+bool is_array_node(struct node* node);
+bool is_parentheses_operator(const char* op);
+bool is_parentheses_node(struct node* node);
 
 // Array functions
 struct array_brackets* array_brackets_new();
