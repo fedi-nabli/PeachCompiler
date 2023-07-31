@@ -399,6 +399,23 @@ void stackframe_sub(struct node* func_node, int type, const char* name, size_t a
 void stackframe_add(struct node* func_node, size_t amount);
 void stackframe_assert_empty(struct node* func_node);
 
+struct node;
+struct unary
+{
+  // "*" for pointer access.. **** even for multiple pointer access only the first operator
+  // is here
+  const char* op;
+  struct node* operand;
+  union
+  {
+    struct indirection
+    {
+      // The pointer depth
+      int depth;
+    } indirection;
+  };
+};
+
 struct node
 {
   int type;
@@ -612,6 +629,8 @@ struct node
       struct datatype dtype;
       struct node* operand;
     } cast;
+
+    struct unary unary;
   };
 
   union
@@ -960,6 +979,7 @@ void make_label_node(struct node* name_node);
 void make_case_node(struct node* exp_node);
 void make_tenary_node(struct node* true_node, struct node* false_node);
 void make_cast_node(struct datatype* dtype, struct node* operand_node);
+void make_unary_node(const char* op, struct node* operand_node);
 struct node* node_pop();
 struct node* node_peek();
 struct node* node_peek_or_null();
@@ -997,6 +1017,10 @@ bool is_argument_operator(const char* op);
 bool is_argument_node(struct node* node);
 void datatype_decrement_pointer(struct datatype* dtype);
 size_t array_brackets_count(struct datatype* dtype);
+
+// Parser helper function
+bool is_unary_operator(const char* op);
+bool op_is_indirection(const char* op);
 
 // Array functions
 struct array_brackets* array_brackets_new();
