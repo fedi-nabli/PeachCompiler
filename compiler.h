@@ -995,6 +995,8 @@ bool is_parentheses_operator(const char* op);
 bool is_parentheses_node(struct node* node);
 bool is_argument_operator(const char* op);
 bool is_argument_node(struct node* node);
+void datatype_decrement_pointer(struct datatype* dtype);
+size_t array_brackets_count(struct datatype* dtype);
 
 // Array functions
 struct array_brackets* array_brackets_new();

@@ -65,3 +65,8 @@ int array_total_indexes(struct datatype* dtype)
   struct array_brackets* brackets = dtype->array.brackets;
   return vector_count(brackets->n_brackets);
 }
+
+size_t array_brackets_count(struct datatype* dtype)
+{
+  return vector_count(dtype->array.brackets->n_brackets);
+}
