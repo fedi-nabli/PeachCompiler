@@ -850,7 +850,7 @@ struct resolver_entity
   struct resolver_result* result;
 
   // The resolver process
-  struct resolver_process* process;
+  struct resolver_process* resolver;
 
   // Private data that only the resolver entity creator knows about
   void* private;
@@ -1015,6 +1015,7 @@ bool is_parentheses_operator(const char* op);
 bool is_parentheses_node(struct node* node);
 bool is_argument_operator(const char* op);
 bool is_argument_node(struct node* node);
+bool op_is_address(const char* op);
 void datatype_decrement_pointer(struct datatype* dtype);
 size_t array_brackets_count(struct datatype* dtype);
 
