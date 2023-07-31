@@ -1039,7 +1039,7 @@ void resolver_finalize_result_flags(struct resolver_process* resolver, struct re
     if (last_entity->type == RESOLVER_ENTITY_TYPE_VARIABLE && datatype_is_struct_or_union_non_pointer(&last_entity->dtype))
     {
       flags |= RESOLVER_RESULT_FLAG_FIRST_ENTITY_LOAD_TO_EBX;
-      flags &= ~ RESOLVER_RESULT_FLAG_FIRST_ENTITY_PUSH_VALUE;
+      flags &= ~RESOLVER_RESULT_FLAG_FIRST_ENTITY_PUSH_VALUE;
     }
 
     result->flags = flags;
@@ -1081,7 +1081,7 @@ void resolver_finalize_result_flags(struct resolver_process* resolver, struct re
         flags &= ~RESOLVER_RESULT_FLAG_FIRST_ENTITY_PUSH_VALUE;
       }
 
-      if (entity->type == RESOLVER_ENTITY_FLAG_IS_POINTER_ARRAY_ENTITY)
+      if (entity->flags & RESOLVER_ENTITY_FLAG_IS_POINTER_ARRAY_ENTITY)
       {
         flags |= RESOLVER_RESULT_FLAG_FINAL_INDIRECTION_REQUIRED_FOR_VALUE;
       }
