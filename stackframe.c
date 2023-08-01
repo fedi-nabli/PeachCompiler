@@ -63,7 +63,7 @@ void stackframe_sub(struct node* func_node, int type, const char* name, size_t a
   }
 }
 
-void stackframe_add(struct node* func_node, size_t amount)
+void stackframe_add(struct node* func_node, int type, const char* name, size_t amount)
 {
   assert((amount % STACK_PUSH_SIZE) == 0);
   size_t total_pops = amount / STACK_PUSH_SIZE;
