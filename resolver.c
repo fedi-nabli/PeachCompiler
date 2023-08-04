@@ -356,7 +356,7 @@ struct resolver_entity* resolver_create_new_cast_entity(struct resolver_process*
 struct resolver_entity* resolver_create_new_entity_for_var_node_custom_scope(struct resolver_process* process, struct node* var_node, void* private, struct resolver_scope* scope, int offset)
 {
   assert(var_node->type == NODE_TYPE_VARIABLE);
-  struct resolver_entity* entity = resolver_create_new_entity(NULL, NODE_TYPE_VARIABLE, private);
+  struct resolver_entity* entity = resolver_create_new_entity(NULL, RESOLVER_ENTITY_TYPE_VARIABLE, private);
   if (!entity)
   {
     return NULL;
