@@ -1,3 +1,5 @@
+const char* hello = "hello";
+
 int main()
 {
   int b = 50;

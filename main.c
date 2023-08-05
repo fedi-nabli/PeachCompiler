@@ -57,11 +57,11 @@ int main(int argc, char** argv)
       sprintf(nasm_cmd, "nasm -f elf32 %s -o %s && gcc -m32 %s -o %s", output_file, nasm_output_file, nasm_output_file, output_file);
     }
 
-    printf("%s", nasm_cmd);
+    printf("%s\n", nasm_cmd);
     int res = system(nasm_cmd);
     if (res < 0)
     {
-      printf("Issue assembling the assembly file with NASM and linking with gcc");
+      printf("Issue assembling the assembly file with NASM and linking with gcc\n");
       return res;
     }
   }
