@@ -1197,6 +1197,7 @@ struct resolver_result* resolver_follow(struct resolver_process* resolver, struc
 bool resolver_result_ok(struct resolver_result* result);
 struct resolver_entity* resolver_result_entity_root(struct resolver_result* result);
 struct resolver_entity* resolver_result_entity_next(struct resolver_entity* entity);
+struct resolver_entity* resolver_result_entity(struct resolver_result* result);
 
 // Resolver default functions
 struct resolver_default_entity_data* resolver_default_entity_private(struct resolver_entity* entity);
