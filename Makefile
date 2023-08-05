@@ -69,4 +69,8 @@ clean:
 	then \
 		rm ./main ; \
 	fi;
+	if [ -f ./*.o ] ; \
+	then \
+		rm ./*.o ; \
+	fi;
 	rm -rf ${OBJECTS}
