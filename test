@@ -12,6 +12,11 @@ push dword 50
 pop eax
 mov dword [ebp-4], eax
 push dword 20
+push dword 10
+pop ecx
+pop eax
+add eax, ecx
+push eax
 pop eax
 mov dword [ebp-4], eax
 add esp, 16
