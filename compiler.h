@@ -1149,6 +1149,8 @@ size_t array_brackets_count(struct datatype* dtype);
 // Parser helper function
 bool is_unary_operator(const char* op);
 bool op_is_indirection(const char* op);
+struct datatype* datatype_thats_a_pointer(struct datatype* d1, struct datatype* d2);
+struct datatype* datatype_pointer_reduce(struct datatype* datatype, int by);
 
 // Codegen helper functions
 struct datatype datatype_for_numeric();
