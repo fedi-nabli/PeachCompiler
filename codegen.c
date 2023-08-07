@@ -77,9 +77,20 @@ bool codegen_response_has_entity(struct response* res)
   return codegen_response_acknowledged(res) && res->flags & RESPONSE_FLAG_RESOLVED_ENTITY && res->data.resolved_entity;
 }
 
+struct history_exp
+{
+  const char* logical_start_op;
+  char logical_end_label[20];
+  char logical_end_label_positive[20];
+};
+
 struct history
 {
   int flags;
+  union
+  {
+    struct history_exp exp;
+  };
 };
 
 static struct history* history_begin(int flags)
@@ -1152,15 +1163,90 @@ void codegen_gen_math_for_value(const char* reg, const char* value, int flags, b
   }
 }
 
+void codegen_setup_new_logical_expression(struct history* history, struct node* node)
+{
+  int label_index = codegen_label_count();
+  sprintf(history->exp.logical_end_label, ".endc_%i", label_index);
+  sprintf(history->exp.logical_end_label_positive, ".endc_%i_positive", label_index);
+  history->exp.logical_start_op = node->exp.op;
+  history->flags |= EXPRESSION_IN_LOGICAL_EXPRESSION;
+}
+
+void codegen_generate_logical_cmp_and(const char* reg, const char* fail_label)
+{
+  asm_push("cmp %s, 0", reg);
+  asm_push("je %s", fail_label);
+}
+
+void codegen_generate_logical_cmp_or(const char* reg, const char* equal_label)
+{
+  asm_push("cmp %s, 0", reg);
+  asm_push("jg %s", equal_label);
+}
+
+void codegen_generate_logical_cmp(const char* op, const char* fail_label, const char* equal_label)
+{
+  if (S_EQ(op, "&&"))
+  {
+    codegen_generate_logical_cmp_and("eax", fail_label);
+  }
+  else if (S_EQ(op, "||"))
+  {
+    codegen_generate_logical_cmp_or("eax", equal_label);
+  }
+}
+
+void codegen_generate_end_labels_for_logical_expression(const char* op, const char* end_label, const char* end_label_positive)
+{
+  if (S_EQ(op, "&&"))
+  {
+    asm_push("; && END CLAUSE");
+    asm_push("mov eax, 1");
+    asm_push("jmp %s", end_label_positive);
+    asm_push("%s:", end_label);
+    asm_push("xor eax, eax");
+    asm_push("%s:", end_label_positive);
+  }
+  else if (S_EQ(op, "||"))
+  {
+    asm_push("; || END CLAUSE"),
+    asm_push("jmp %s", end_label);
+    asm_push("%s:", end_label_positive);
+    asm_push("mov eax, 1");
+    asm_push("%s:", end_label);
+  }
+}
+
+void codegen_generate_exp_node_for_logical_arithmetic(struct node* node, struct history* history)
+{
+  bool start_of_logical_exp = !(history->flags & EXPRESSION_IN_LOGICAL_EXPRESSION);
+  if (start_of_logical_exp)
+  {
+    codegen_setup_new_logical_expression(history, node);
+  }
+  codegen_generate_expressionable(node->exp.left, history_down(history, history->flags | EXPRESSION_IN_LOGICAL_EXPRESSION));
+  asm_push_ins_pop("eax", STACK_FRAME_ELEMENT_TYPE_PUSHED_VALUE, "result_value");
+  codegen_generate_logical_cmp(node->exp.op, history->exp.logical_end_label, history->exp.logical_end_label_positive);
+  codegen_generate_expressionable(node->exp.right, history_down(history, history->flags | EXPRESSION_IN_LOGICAL_EXPRESSION));
+  if (!is_logical_node(node->exp.right))
+  {
+    asm_push_ins_pop("eax", STACK_FRAME_ELEMENT_TYPE_PUSHED_VALUE, "result_value"),
+    codegen_generate_logical_cmp(node->exp.op, history->exp.logical_end_label, history->exp.logical_end_label_positive);
+    codegen_generate_end_labels_for_logical_expression(node->exp.op, history->exp.logical_end_label, history->exp.logical_end_label_positive);
+    asm_push_ins_push("eax", STACK_FRAME_ELEMENT_TYPE_PUSHED_VALUE, "result_value");
+  }
+}
+
 void codegen_generate_exp_node_for_arithmetic(struct node* node, struct history* history)
 {
   assert(node->type == NODE_TYPE_EXPRESSION);
   int flags = history->flags;
 
-  // if (is_logical_operator(node->exp.op))
-  // {
-  //   codegen_generate_exp_node_for_logical_arithmetic
-  // }
+  if (is_logical_operator(node->exp.op))
+  {
+    codegen_generate_exp_node_for_logical_arithmetic(node, history);
+    return;
+  }
 
   struct node* left_node = node->exp.left;
   struct node* right_node = node->exp.right;
